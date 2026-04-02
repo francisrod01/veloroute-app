@@ -1,0 +1,52 @@
+services:
+  # Database with PostGIS maps support
+  db:
+    image: postgis/postgis:15-3.3
+    networks:
+      - veloroute_network
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: veloroute
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password123
+    volumes:
+      - ./infra/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d veloroute"]
+      interval: 5s
+      timeout: 5s
+      retries: 6
+  
+  # ORM/API layer: Transform the database into REST API automatically
+  api:
+    image: postgrest/postgrest:v10.1.2
+    networks:
+      - veloroute_network
+    ports:
+      - "3000:3000"
+    environment:
+      PGRST_DB_URI: postgres://admin:password123@db:5432/veloroute
+      PGRST_DB_SCHEMA: public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: "change_this_secret_in_production_123"
+    depends_on:
+      db:
+        condition: service_healthy
+  
+  # Admin interface to manager database with no SQL commands
+  adminer:
+    image: adminer
+    networks:
+      - veloroute_network
+    restart: always
+    ports:
+      - "8000:8080" # Map host port 8000 to internal container port 8080
+
+networks:
+  veloroute_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
