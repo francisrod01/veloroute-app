@@ -1,0 +1,40 @@
+name: VeloRoute CI
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+  test_and_build:
+    runs-on: ubuntu-latest
+    steps:
+      # checkout@v4.2.2
+      - name: Checkout Code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      # flutter-action@v2.23.0
+      - name: Setup Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          channel: 'stable'
+          cache: true # Speeds up subsequent runs
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Static Analysis (Linter)
+        run: flutter analyze
+
+      - name: Run Unit Tests
+        run: flutter test --coverage
+
+      - name: Upload Coverage to Codecov
+        # Pinned to v5.1.2 SHA for security
+        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info # Explicit path for Flutter
+          fail_ci_if_error: true # Ensures you know if the upload fails
+          verbose: true # Provides detailed logs for debugging

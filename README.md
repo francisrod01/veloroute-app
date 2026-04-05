@@ -2,6 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Platform](https://img.shields.io/badge/Platform-Android%20|%20macOS-green.svg)](#)
+[![codecov](https://codecov.io/github/francisrod01/veloroute-app/graph/badge.svg?token=76G8YBIB55)](https://codecov.io/github/francisrod01/veloroute-app)
 
 A high-performance transit scheduling platform built with **Flutter** and **Clean Architecture**.   
 Powered by a **Dockerised PostGIS** and **PostgREST** backend ecosystem.
